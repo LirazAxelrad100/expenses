@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, sans-serif;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  background: #f7f7f8;
+  color: #1c1c1e;
+}
+
+header {
+  text-align: center;
+  padding: 24px 0;
+}
+
+h1 {
+  font-size: 18px;
+  color: #666;
+  margin: 0 0 8px;
+  font-weight: normal;
+}
+
+.total {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.totalLabel {
+  color: #999;
+  font-size: 13px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+button {
+  background: #1c1c1e;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+section, details {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+li .meta {
+  color: #999;
+  font-size: 12px;
+}
+
+li button {
+  background: none;
+  border: none;
+  color: #c00;
+  font-size: 13px;
+  padding: 0 0 0 8px;
+  width: auto;
+}
+
+#addBucketForm {
+  flex-direction: row;
+  padding: 0;
+  margin-top: 12px;
+  background: none;
+}

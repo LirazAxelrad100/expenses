@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expenses</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Expenses</h1>
+  <div id="monthTotal" class="total">€0.00</div>
+  <div class="totalLabel">this month</div>
+</header>
+
+<main>
+
+  <form id="expenseForm">
+    <input type="number" id="amount" step="0.01" min="0" placeholder="Amount" required>
+    <input type="text" id="item" placeholder="Item" required>
+    <select id="bucket" required></select>
+    <input type="text" id="place" placeholder="Where (optional)">
+    <input type="text" id="notes" placeholder="Notes (optional) - e.g. big shop, multiple buckets">
+    <button type="submit">Add expense</button>
+  </form>
+
+  <section id="breakdown">
+    <h2>This month by bucket</h2>
+    <ul id="breakdownList"></ul>
+  </section>
+
+  <section id="recent">
+    <h2>Recent expenses</h2>
+    <ul id="recentList"></ul>
+  </section>
+
+  <details id="manageBuckets">
+    <summary>Manage buckets</summary>
+    <ul id="bucketList"></ul>
+    <form id="addBucketForm">
+      <input type="text" id="newBucketName" placeholder="New bucket name" required>
+      <button type="submit">Add bucket</button>
+    </form>
+  </details>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
