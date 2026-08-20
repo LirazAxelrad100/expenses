@@ -84,18 +84,23 @@ async function loadExpenses() {
   recentExpenses = recentData;
 
   const recentList = document.getElementById("recentList");
-  recentList.innerHTML = recentData.map(e => `
+  recentList.innerHTML = recentData.map(e => {
+    const bucketName = e.buckets ? e.buckets.name : "Other";
+    const title = e.item || bucketName;
+    const meta = [e.item ? bucketName : null, e.place, e.notes].filter(Boolean).join(" · ");
+    return `
     <li>
       <span>
-        ${e.item}
-        <div class="meta">${e.buckets ? e.buckets.name : "Other"}${e.place ? " · " + e.place : ""}${e.notes ? " · " + e.notes : ""}</div>
+        ${title}
+        ${meta ? `<div class="meta">${meta}</div>` : ""}
       </span>
       <span>
         ${formatMoney(e.amount)}
         <button data-id="${e.id}" class="editExpense">edit</button>
       </span>
     </li>
-  `).join("") || "<li>No expenses yet</li>";
+  `;
+  }).join("") || "<li>No expenses yet</li>";
 
   recentList.querySelectorAll(".editExpense").forEach(btn => {
     btn.addEventListener("click", () => startEdit(btn.dataset.id));
@@ -109,7 +114,7 @@ function startEdit(id) {
   editingId = id;
   setSplitMode(false);
   document.getElementById("amount").value = expense.amount;
-  document.getElementById("item").value = expense.item;
+  document.getElementById("item").value = expense.item || "";
   document.getElementById("bucket").value = expense.bucket_id || "";
   document.getElementById("place").value = expense.place || "";
   document.getElementById("notes").value = expense.notes || "";
@@ -153,7 +158,7 @@ document.getElementById("cancelEditBtn").addEventListener("click", stopEditing);
 
 document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const item = document.getElementById("item").value.trim();
+  const item = document.getElementById("item").value.trim() || null;
   const place = document.getElementById("place").value.trim();
   const notes = document.getElementById("notes").value.trim();
   const isSplit = document.getElementById("splitToggle").checked;

@@ -9,7 +9,7 @@ create table buckets (
 create table expenses (
   id uuid primary key default gen_random_uuid(),
   amount numeric not null,
-  item text not null,
+  item text,
   bucket_id uuid references buckets(id),
   place text,
   notes text,
