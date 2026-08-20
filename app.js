@@ -121,17 +121,9 @@ function startEdit(id) {
 
 function setSplitMode(isSplit) {
   document.getElementById("splitToggle").checked = isSplit;
-  document.getElementById("singleBucketRow").style.display = isSplit ? "none" : "flex";
   document.getElementById("splitRows").style.display = isSplit ? "flex" : "none";
   document.getElementById("addSplitRowBtn").style.display = isSplit ? "inline-block" : "none";
-  document.getElementById("amount").required = !isSplit;
-  document.getElementById("bucket").required = !isSplit;
-
   document.getElementById("splitRows").innerHTML = "";
-  if (isSplit) {
-    addSplitRow();
-    addSplitRow();
-  }
 }
 
 function addSplitRow() {
@@ -166,33 +158,34 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   const notes = document.getElementById("notes").value.trim();
   const isSplit = document.getElementById("splitToggle").checked;
 
+  const firstRow = {
+    amount: document.getElementById("amount").value,
+    item,
+    bucket_id: document.getElementById("bucket").value,
+    place: place || null,
+    notes: notes || null
+  };
+
   let error;
 
   if (isSplit) {
-    const rows = [...document.querySelectorAll(".splitRow")].map(row => ({
+    const extraRows = [...document.querySelectorAll(".splitRow")].map(row => ({
       amount: row.querySelector(".splitAmount").value,
       bucket_id: row.querySelector(".splitBucket").value,
       item, place: place || null, notes: notes || null
     }));
+    const allRows = [firstRow, ...extraRows];
 
-    if (rows.some(r => !r.amount || !r.bucket_id)) {
+    if (allRows.some(r => !r.amount || !r.bucket_id)) {
       alert("Fill in an amount and a bucket for each row.");
       return;
     }
 
-    ({ error } = await db.from("expenses").insert(rows));
+    ({ error } = await db.from("expenses").insert(allRows));
   } else {
-    const values = {
-      amount: document.getElementById("amount").value,
-      item,
-      bucket_id: document.getElementById("bucket").value,
-      place: place || null,
-      notes: notes || null
-    };
-
     ({ error } = editingId
-      ? await db.from("expenses").update(values).eq("id", editingId)
-      : await db.from("expenses").insert(values));
+      ? await db.from("expenses").update(firstRow).eq("id", editingId)
+      : await db.from("expenses").insert(firstRow));
   }
 
   if (error) return console.error(error);

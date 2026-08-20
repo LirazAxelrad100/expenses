@@ -21,21 +21,20 @@
 <main>
 
   <form id="expenseForm">
-    <input type="text" id="item" placeholder="Item" required>
-
-    <label class="checkboxRow">
-      <input type="checkbox" id="splitToggle">
-      Split across multiple buckets
-    </label>
-
-    <div id="singleBucketRow" class="fieldRow">
+    <div class="fieldRow">
       <input type="number" id="amount" step="0.01" min="0" placeholder="Amount" required>
       <select id="bucket" required></select>
     </div>
 
-    <div id="splitRows" style="display:none"></div>
-    <button type="button" id="addSplitRowBtn" style="display:none">+ Add bucket</button>
+    <label class="checkboxRow">
+      <input type="checkbox" id="splitToggle">
+      This purchase covers more than one bucket
+    </label>
 
+    <div id="splitRows" style="display:none"></div>
+    <button type="button" id="addSplitRowBtn" style="display:none">+ Add another bucket</button>
+
+    <input type="text" id="item" placeholder="Item" required>
     <input type="text" id="place" placeholder="Where (optional)">
     <input type="text" id="notes" placeholder="Notes (optional)">
     <button type="submit" id="submitBtn">Add expense</button>
@@ -65,6 +64,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
