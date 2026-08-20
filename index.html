@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Expenses">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Expenses</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -22,7 +26,8 @@
     <select id="bucket" required></select>
     <input type="text" id="place" placeholder="Where (optional)">
     <input type="text" id="notes" placeholder="Notes (optional) - e.g. big shop, multiple buckets">
-    <button type="submit">Add expense</button>
+    <button type="submit" id="submitBtn">Add expense</button>
+    <button type="button" id="cancelEditBtn" style="display:none">Cancel edit</button>
   </form>
 
   <section id="breakdown">
@@ -48,6 +53,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

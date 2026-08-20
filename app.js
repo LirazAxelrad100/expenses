@@ -1,6 +1,8 @@
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let buckets = [];
+let recentExpenses = [];
+let editingId = null;
 
 function formatMoney(n) {
   return "€" + Number(n).toFixed(2);
@@ -17,7 +19,8 @@ async function loadBuckets() {
   buckets = data;
 
   const select = document.getElementById("bucket");
-  select.innerHTML = buckets.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
+  select.innerHTML = `<option value="" disabled selected>Select</option>` +
+    buckets.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
 
   const bucketList = document.getElementById("bucketList");
   bucketList.innerHTML = buckets.map(b => `
@@ -76,6 +79,7 @@ async function loadExpenses() {
     .order("created_at", { ascending: false })
     .limit(10);
   if (recentError) return console.error(recentError);
+  recentExpenses = recentData;
 
   const recentList = document.getElementById("recentList");
   recentList.innerHTML = recentData.map(e => `
@@ -86,21 +90,40 @@ async function loadExpenses() {
       </span>
       <span>
         ${formatMoney(e.amount)}
-        <button data-id="${e.id}" class="deleteExpense">×</button>
+        <button data-id="${e.id}" class="editExpense">edit</button>
       </span>
     </li>
   `).join("") || "<li>No expenses yet</li>";
 
-  recentList.querySelectorAll(".deleteExpense").forEach(btn => {
-    btn.addEventListener("click", () => deleteExpense(btn.dataset.id));
+  recentList.querySelectorAll(".editExpense").forEach(btn => {
+    btn.addEventListener("click", () => startEdit(btn.dataset.id));
   });
 }
 
-async function deleteExpense(id) {
-  const { error } = await db.from("expenses").delete().eq("id", id);
-  if (error) return console.error(error);
-  await loadExpenses();
+function startEdit(id) {
+  const expense = recentExpenses.find(e => e.id === id);
+  if (!expense) return;
+
+  editingId = id;
+  document.getElementById("amount").value = expense.amount;
+  document.getElementById("item").value = expense.item;
+  document.getElementById("bucket").value = expense.bucket_id || "";
+  document.getElementById("place").value = expense.place || "";
+  document.getElementById("notes").value = expense.notes || "";
+
+  document.getElementById("submitBtn").textContent = "Save changes";
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
+  document.getElementById("amount").scrollIntoView({ behavior: "smooth" });
 }
+
+function stopEditing() {
+  editingId = null;
+  document.getElementById("expenseForm").reset();
+  document.getElementById("submitBtn").textContent = "Add expense";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+document.getElementById("cancelEditBtn").addEventListener("click", stopEditing);
 
 document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -110,12 +133,14 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   const place = document.getElementById("place").value.trim();
   const notes = document.getElementById("notes").value.trim();
 
-  const { error } = await db.from("expenses").insert({
-    amount, item, bucket_id, place: place || null, notes: notes || null
-  });
+  const values = { amount, item, bucket_id, place: place || null, notes: notes || null };
+
+  const { error } = editingId
+    ? await db.from("expenses").update(values).eq("id", editingId)
+    : await db.from("expenses").insert(values);
   if (error) return console.error(error);
 
-  document.getElementById("expenseForm").reset();
+  stopEditing();
   await loadExpenses();
 });
 
