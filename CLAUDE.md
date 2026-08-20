@@ -4,18 +4,23 @@ A simple personal tool for Liraz to log expenses on the go and see monthly
 spend broken down by category ("bucket"). Part of her PM git portfolio.
 
 ## Status
-v1 built and working, pushed to GitHub (https://github.com/LirazAxelrad100/expenses).
-Not yet deployed (Vercel setup is next).
+v1 built, deployed, and in real use. Live on Vercel (connected to GitHub repo
+https://github.com/LirazAxelrad100/expenses, auto-deploys on push). Added to Liraz's iPhone
+home screen as a full-screen web app.
 
 ## What's done
-- Add-expense form: amount, item, bucket (dropdown), where (optional), notes (optional)
+- Add-expense form: amount, item, bucket (dropdown, no default selection — must actively choose),
+  where (optional), notes (optional)
 - Buckets are editable in-app (add/delete) — not hardcoded, since Liraz expected to change them often
 - Running monthly total, always visible, updates live
 - This-month breakdown by bucket
-- Recent expenses list with delete
+- Recent expenses list — no delete; tapping "edit" loads the entry into the form to correct mistakes
+  (Liraz's call: deleting isn't the expected action here, editing is)
 - Backend: Supabase (Postgres + auto REST API), tables `buckets` and `expenses`, schema in schema.sql
 - No login/auth — single user, RLS policies allow public access scoped to these two tables only
 - Plain HTML/CSS/JS, no build step or framework, loads Supabase client from CDN
+- iOS home screen support: apple-mobile-web-app meta tags (full-screen, no Safari address bar) +
+  custom apple-touch-icon.png (dark square, white € symbol, matches the app's button color)
 
 ## Key decisions
 - **Broad buckets, not granular ones** (e.g. "Groceries" not "Vegetables"/"Snacks"/etc). Liraz
@@ -41,6 +46,5 @@ Not yet deployed (Vercel setup is next).
   bump a `?v=` query string on the script tag.
 
 ## Next
-- Deploy to Vercel, connected to the GitHub repo
 - Liraz to use it for real and revisit bucket granularity / the mixed-trip notes approach once
   she has actual usage

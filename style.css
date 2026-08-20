@@ -109,3 +109,53 @@ li button {
   margin-top: 12px;
   background: none;
 }
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+}
+
+.checkboxRow input {
+  width: auto;
+  padding: 0;
+}
+
+.fieldRow {
+  display: flex;
+  gap: 10px;
+}
+
+.fieldRow input, .fieldRow select {
+  flex: 1;
+  min-width: 0;
+}
+
+.splitRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.splitRow input, .splitRow select {
+  flex: 1;
+  min-width: 0;
+}
+
+.splitRow button {
+  background: none;
+  border: none;
+  color: #c00;
+  width: auto;
+  padding: 0 4px;
+  font-size: 18px;
+}
+
+#addSplitRowBtn {
+  background: none;
+  border: 1px dashed #ccc;
+  color: #666;
+  font-weight: normal;
+}

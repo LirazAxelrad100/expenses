@@ -3,6 +3,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let buckets = [];
 let recentExpenses = [];
 let editingId = null;
+let bucketOptionsHtml = "";
 
 function formatMoney(n) {
   return "€" + Number(n).toFixed(2);
@@ -18,9 +19,10 @@ async function loadBuckets() {
   if (error) return console.error(error);
   buckets = data;
 
-  const select = document.getElementById("bucket");
-  select.innerHTML = `<option value="" disabled selected>Select</option>` +
+  bucketOptionsHtml = `<option value="" disabled selected>Select</option>` +
     buckets.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
+
+  document.getElementById("bucket").innerHTML = bucketOptionsHtml;
 
   const bucketList = document.getElementById("bucketList");
   bucketList.innerHTML = buckets.map(b => `
@@ -105,6 +107,7 @@ function startEdit(id) {
   if (!expense) return;
 
   editingId = id;
+  setSplitMode(false);
   document.getElementById("amount").value = expense.amount;
   document.getElementById("item").value = expense.item;
   document.getElementById("bucket").value = expense.bucket_id || "";
@@ -116,28 +119,82 @@ function startEdit(id) {
   document.getElementById("amount").scrollIntoView({ behavior: "smooth" });
 }
 
+function setSplitMode(isSplit) {
+  document.getElementById("splitToggle").checked = isSplit;
+  document.getElementById("singleBucketRow").style.display = isSplit ? "none" : "flex";
+  document.getElementById("splitRows").style.display = isSplit ? "flex" : "none";
+  document.getElementById("addSplitRowBtn").style.display = isSplit ? "inline-block" : "none";
+  document.getElementById("amount").required = !isSplit;
+  document.getElementById("bucket").required = !isSplit;
+
+  document.getElementById("splitRows").innerHTML = "";
+  if (isSplit) {
+    addSplitRow();
+    addSplitRow();
+  }
+}
+
+function addSplitRow() {
+  const row = document.createElement("div");
+  row.className = "splitRow";
+  row.innerHTML = `
+    <input type="number" step="0.01" min="0" placeholder="Amount" class="splitAmount">
+    <select class="splitBucket">${bucketOptionsHtml}</select>
+    <button type="button" class="removeSplitRow">×</button>
+  `;
+  row.querySelector(".removeSplitRow").addEventListener("click", () => row.remove());
+  document.getElementById("splitRows").appendChild(row);
+}
+
+document.getElementById("splitToggle").addEventListener("change", (e) => setSplitMode(e.target.checked));
+document.getElementById("addSplitRowBtn").addEventListener("click", addSplitRow);
+
 function stopEditing() {
   editingId = null;
   document.getElementById("expenseForm").reset();
   document.getElementById("submitBtn").textContent = "Add expense";
   document.getElementById("cancelEditBtn").style.display = "none";
+  setSplitMode(false);
 }
 
 document.getElementById("cancelEditBtn").addEventListener("click", stopEditing);
 
 document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const amount = document.getElementById("amount").value;
   const item = document.getElementById("item").value.trim();
-  const bucket_id = document.getElementById("bucket").value;
   const place = document.getElementById("place").value.trim();
   const notes = document.getElementById("notes").value.trim();
+  const isSplit = document.getElementById("splitToggle").checked;
 
-  const values = { amount, item, bucket_id, place: place || null, notes: notes || null };
+  let error;
 
-  const { error } = editingId
-    ? await db.from("expenses").update(values).eq("id", editingId)
-    : await db.from("expenses").insert(values);
+  if (isSplit) {
+    const rows = [...document.querySelectorAll(".splitRow")].map(row => ({
+      amount: row.querySelector(".splitAmount").value,
+      bucket_id: row.querySelector(".splitBucket").value,
+      item, place: place || null, notes: notes || null
+    }));
+
+    if (rows.some(r => !r.amount || !r.bucket_id)) {
+      alert("Fill in an amount and a bucket for each row.");
+      return;
+    }
+
+    ({ error } = await db.from("expenses").insert(rows));
+  } else {
+    const values = {
+      amount: document.getElementById("amount").value,
+      item,
+      bucket_id: document.getElementById("bucket").value,
+      place: place || null,
+      notes: notes || null
+    };
+
+    ({ error } = editingId
+      ? await db.from("expenses").update(values).eq("id", editingId)
+      : await db.from("expenses").insert(values));
+  }
+
   if (error) return console.error(error);
 
   stopEditing();
