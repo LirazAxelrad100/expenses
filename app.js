@@ -9,9 +9,14 @@ function formatMoney(n) {
   return "€" + Number(n).toFixed(2);
 }
 
-function startOfMonth() {
+function todayStr() {
   const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function startOfMonthStr() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01";
 }
 
 async function loadBuckets() {
@@ -58,7 +63,7 @@ async function loadExpenses() {
   const { data: monthData, error: monthError } = await db
     .from("expenses")
     .select("*, buckets(name)")
-    .gte("created_at", startOfMonth());
+    .gte("expense_date", startOfMonthStr());
   if (monthError) return console.error(monthError);
 
   const total = monthData.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -78,6 +83,7 @@ async function loadExpenses() {
   const { data: recentData, error: recentError } = await db
     .from("expenses")
     .select("*, buckets(name)")
+    .order("expense_date", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(10);
   if (recentError) return console.error(recentError);
@@ -87,7 +93,7 @@ async function loadExpenses() {
   recentList.innerHTML = recentData.map(e => {
     const bucketName = e.buckets ? e.buckets.name : "Other";
     const title = e.item || bucketName;
-    const meta = [e.item ? bucketName : null, e.place, e.notes].filter(Boolean).join(" · ");
+    const meta = [e.expense_date, e.item ? bucketName : null, e.place, e.notes].filter(Boolean).join(" · ");
     return `
     <li>
       <span>
@@ -114,6 +120,7 @@ function startEdit(id) {
   editingId = id;
   setSplitMode(false);
   document.getElementById("amount").value = expense.amount;
+  document.getElementById("date").value = expense.expense_date || todayStr();
   document.getElementById("item").value = expense.item || "";
   document.getElementById("bucket").value = expense.bucket_id || "";
   document.getElementById("place").value = expense.place || "";
@@ -149,6 +156,7 @@ document.getElementById("addSplitRowBtn").addEventListener("click", addSplitRow)
 function stopEditing() {
   editingId = null;
   document.getElementById("expenseForm").reset();
+  document.getElementById("date").value = todayStr();
   document.getElementById("submitBtn").textContent = "Add expense";
   document.getElementById("cancelEditBtn").style.display = "none";
   setSplitMode(false);
@@ -163,12 +171,15 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   const notes = document.getElementById("notes").value.trim();
   const isSplit = document.getElementById("splitToggle").checked;
 
+  const expenseDate = document.getElementById("date").value;
+
   const firstRow = {
     amount: document.getElementById("amount").value,
     item,
     bucket_id: document.getElementById("bucket").value,
     place: place || null,
-    notes: notes || null
+    notes: notes || null,
+    expense_date: expenseDate
   };
 
   let error;
@@ -177,7 +188,8 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
     const extraRows = [...document.querySelectorAll(".splitRow")].map(row => ({
       amount: row.querySelector(".splitAmount").value,
       bucket_id: row.querySelector(".splitBucket").value,
-      item, place: place || null, notes: notes || null
+      item, place: place || null, notes: notes || null,
+      expense_date: expenseDate
     }));
     const allRows = [firstRow, ...extraRows];
 
@@ -200,6 +212,7 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
 });
 
 (async function init() {
+  document.getElementById("date").value = todayStr();
   await loadBuckets();
   await loadExpenses();
 })();

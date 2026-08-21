@@ -123,6 +123,20 @@ li button {
   padding: 0;
 }
 
+.dateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+}
+
+.dateRow input {
+  flex: 1;
+  max-width: 160px;
+}
+
 .fieldRow {
   display: flex;
   gap: 10px;

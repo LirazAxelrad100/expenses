@@ -13,6 +13,7 @@ create table expenses (
   bucket_id uuid references buckets(id),
   place text,
   notes text,
+  expense_date date not null default current_date,
   created_at timestamptz default now()
 );
 
@@ -29,6 +30,10 @@ create policy "public access" on expenses for all using (true) with check (true)
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on buckets to anon, authenticated;
 grant select, insert, update, delete on expenses to anon, authenticated;
+
+-- MIGRATION (2026-08-21): run this once in Supabase SQL Editor if the
+-- expenses table already exists and doesn't have expense_date yet.
+-- alter table expenses add column expense_date date not null default current_date;
 
 -- starter buckets, edit anytime from the app
 insert into buckets (name) values
