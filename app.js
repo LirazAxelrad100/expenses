@@ -103,6 +103,7 @@ async function loadExpenses() {
       <span>
         ${formatMoney(e.amount)}
         <button data-id="${e.id}" class="editExpense">edit</button>
+        <button data-id="${e.id}" class="deleteExpense" title="Delete">🗑</button>
       </span>
     </li>
   `;
@@ -111,6 +112,17 @@ async function loadExpenses() {
   recentList.querySelectorAll(".editExpense").forEach(btn => {
     btn.addEventListener("click", () => startEdit(btn.dataset.id));
   });
+  recentList.querySelectorAll(".deleteExpense").forEach(btn => {
+    btn.addEventListener("click", () => deleteExpense(btn.dataset.id));
+  });
+}
+
+async function deleteExpense(id) {
+  if (!confirm("Delete this expense?")) return;
+  const { error } = await db.from("expenses").delete().eq("id", id);
+  if (error) return console.error(error);
+  if (editingId === id) stopEditing();
+  await loadExpenses();
 }
 
 function startEdit(id) {
