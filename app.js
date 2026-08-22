@@ -93,7 +93,7 @@ async function loadExpenses() {
   recentList.innerHTML = recentData.map(e => {
     const bucketName = e.buckets ? e.buckets.name : "Other";
     const title = e.item || bucketName;
-    const meta = [e.expense_date, e.item ? bucketName : null, e.place, e.notes].filter(Boolean).join(" · ");
+    const meta = [e.expense_date, bucketName, e.place, e.notes].filter(Boolean).join(" · ");
     return `
     <li>
       <span>
