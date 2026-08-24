@@ -173,3 +173,22 @@ li button {
   color: #666;
   font-weight: normal;
 }
+
+.reportLink {
+  display: block;
+  text-align: right;
+  margin-top: 12px;
+  color: #1c1c1e;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.backLink {
+  color: #666;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+header select {
+  margin: 8px 0;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Expenses">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Expenses — Report</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="backLink">← Expenses</a>
+  <h1 id="monthTitle">Report</h1>
+  <select id="monthSelect"></select>
+  <div id="monthTotal" class="total">€0.00</div>
+  <div class="totalLabel">total</div>
+</header>
+
+<main>
+
+  <section id="breakdown">
+    <h2>By bucket</h2>
+    <ul id="breakdownList"></ul>
+  </section>
+
+  <section id="expenses">
+    <h2>All expenses</h2>
+    <ul id="expenseList"></ul>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="report.js"></script>
+</body>
+</html>
