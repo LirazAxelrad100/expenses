@@ -183,6 +183,18 @@ li button {
   text-decoration: none;
 }
 
+.linkBtn {
+  display: block;
+  margin: 12px 0 0 auto;
+  background: none;
+  border: none;
+  color: #1c1c1e;
+  font-size: 13px;
+  font-weight: normal;
+  padding: 0;
+  width: auto;
+}
+
 .backLink {
   color: #666;
   font-size: 13px;

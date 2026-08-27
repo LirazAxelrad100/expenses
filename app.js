@@ -4,6 +4,8 @@ let buckets = [];
 let recentExpenses = [];
 let editingId = null;
 let bucketOptionsHtml = "";
+let recentExpanded = false;
+const RECENT_PAGE_SIZE = 10;
 
 function formatMoney(n) {
   return "€" + Number(n).toFixed(2);
@@ -63,7 +65,9 @@ async function loadExpenses() {
   const { data: monthData, error: monthError } = await db
     .from("expenses")
     .select("*, buckets(name)")
-    .gte("expense_date", startOfMonthStr());
+    .gte("expense_date", startOfMonthStr())
+    .order("expense_date", { ascending: false })
+    .order("created_at", { ascending: false });
   if (monthError) return console.error(monthError);
 
   const total = monthData.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -80,17 +84,16 @@ async function loadExpenses() {
     .map(([name, amount]) => `<li><span>${name}</span><span>${formatMoney(amount)}</span></li>`)
     .join("") || "<li>No expenses yet this month</li>";
 
-  const { data: recentData, error: recentError } = await db
-    .from("expenses")
-    .select("*, buckets(name)")
-    .order("expense_date", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(10);
-  if (recentError) return console.error(recentError);
-  recentExpenses = recentData;
+  recentExpenses = monthData;
+  recentExpanded = false;
+  renderRecentList();
+}
+
+function renderRecentList() {
+  const toShow = recentExpanded ? recentExpenses : recentExpenses.slice(0, RECENT_PAGE_SIZE);
 
   const recentList = document.getElementById("recentList");
-  recentList.innerHTML = recentData.map(e => {
+  recentList.innerHTML = toShow.map(e => {
     const bucketName = e.buckets ? e.buckets.name : "Other";
     const title = e.item || bucketName;
     const meta = [e.expense_date, bucketName, e.place, e.notes].filter(Boolean).join(" · ");
@@ -107,7 +110,7 @@ async function loadExpenses() {
       </span>
     </li>
   `;
-  }).join("") || "<li>No expenses yet</li>";
+  }).join("") || "<li>No expenses yet this month</li>";
 
   recentList.querySelectorAll(".editExpense").forEach(btn => {
     btn.addEventListener("click", () => startEdit(btn.dataset.id));
@@ -115,7 +118,20 @@ async function loadExpenses() {
   recentList.querySelectorAll(".deleteExpense").forEach(btn => {
     btn.addEventListener("click", () => deleteExpense(btn.dataset.id));
   });
+
+  const showMoreBtn = document.getElementById("showMoreExpenses");
+  if (recentExpenses.length > RECENT_PAGE_SIZE) {
+    showMoreBtn.style.display = "block";
+    showMoreBtn.textContent = recentExpanded ? "Show less" : `Show ${recentExpenses.length - RECENT_PAGE_SIZE} more`;
+  } else {
+    showMoreBtn.style.display = "none";
+  }
 }
+
+document.getElementById("showMoreExpenses").addEventListener("click", () => {
+  recentExpanded = !recentExpanded;
+  renderRecentList();
+});
 
 async function deleteExpense(id) {
   if (!confirm("Delete this expense?")) return;
