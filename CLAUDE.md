@@ -18,8 +18,18 @@ home screen as a full-screen web app.
 - Buckets are editable in-app (add/delete) — not hardcoded, since Liraz expected to change them often
 - Running monthly total, always visible, updates live
 - This-month breakdown by bucket
-- Recent expenses list — no delete; tapping "edit" loads the entry into the form to correct mistakes
-  (Liraz's call: deleting isn't the expected action here, editing is)
+- "This month's expenses" list (was "Recent expenses") — scoped to the current month rather than
+  an all-time last-10, so editing/deleting works on anything logged this month. Shows 10 by
+  default with a "Show N more" / "Show less" toggle (no reload) since a full month can run long.
+  Tapping "edit" loads the entry into the form to correct mistakes; a 🗑
+  button next to it deletes the row after a confirm() prompt (added once Liraz hit a real case:
+  an accidental duplicate from re-submitting instead of updating, with no way to remove it).
+  Each row always shows its
+  bucket name as a subtitle, even when no item was typed and the bucket name is also the bold
+  title — previously the subtitle was hidden in that case to avoid repeating the bucket name, but
+  that made same-bucket entries look inconsistent at a glance (e.g. three "Super" expenses each
+  looked different depending on whether an item was filled in), so it's shown redundantly now for
+  easy scanning
 - Date field on the form (`expense_date` column), defaults to today, editable — lets Liraz log
   an expense for a day other than today. Monthly total/breakdown and "recent" ordering are based
   on this date, not on when the row was created, so a backdated entry lands in the right month
@@ -28,6 +38,12 @@ home screen as a full-screen web app.
 - Plain HTML/CSS/JS, no build step or framework, loads Supabase client from CDN
 - iOS home screen support: apple-mobile-web-app meta tags (full-screen, no Safari address bar) +
   custom apple-touch-icon.png (dark square, white € symbol, matches the app's button color)
+- Monthly report view (`report.html` / `report.js`, linked from the main page as "View past months
+  →"): read-only, no edit/delete. Month picker (auto-populated from distinct months found in the
+  data) shows that month's total, breakdown by bucket, and the *full* expense list sorted
+  chronologically (unlike the main page's "recent" list, which is capped at 10 and spans all
+  months). Main page itself needed no changes — its "this month" total/breakdown was already
+  computed live off the current month, so it already "restarts" naturally each month
 
 ## Key decisions
 - **Broad buckets, not granular ones** (e.g. "Groceries" not "Vegetables"/"Snacks"/etc). Liraz
@@ -59,6 +75,11 @@ home screen as a full-screen web app.
 - Static files are served with no cache-busting, so during local testing the browser can serve a
   stale cached app.js after edits. If changes don't seem to apply when testing, hard refresh or
   bump a `?v=` query string on the script tag.
+- `preview_start` (Claude Code's dev-server tool) fails here with a sandbox `getcwd: Operation not
+  permitted` error when spawning `python3 -m http.server` via .claude/launch.json, regardless of
+  port or working-directory flag used. Workaround: start the static server directly via Bash with
+  `dangerouslyDisableSandbox: true`, then attach the browser pane with `preview_start {url: ...}`
+  pointing at that already-running server.
 
 ## Next
 - Liraz to use it for real for a while
