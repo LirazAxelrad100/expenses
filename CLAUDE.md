@@ -37,7 +37,9 @@ home screen as a full-screen web app.
 - No login/auth — single user, RLS policies allow public access scoped to these two tables only
 - Plain HTML/CSS/JS, no build step or framework, loads Supabase client from CDN
 - iOS home screen support: apple-mobile-web-app meta tags (full-screen, no Safari address bar) +
-  custom apple-touch-icon.png (dark square, white € symbol, matches the app's button color)
+  custom apple-touch-icon.png (dark square, white € symbol, matches the app's button color).
+  Same file is also linked as `rel="icon"` on both pages, so it shows as the browser tab
+  favicon too — helps Liraz tell tabs apart when she has several open
 - Monthly report view (`report.html` / `report.js`, linked from the main page as "View past months
   →"): read-only, no edit/delete. Month picker (auto-populated from distinct months found in the
   data) shows that month's total, breakdown by bucket, and the *full* expense list sorted
