@@ -46,6 +46,9 @@ home screen as a full-screen web app.
   chronologically (unlike the main page's "recent" list, which is capped at 10 and spans all
   months). Main page itself needed no changes — its "this month" total/breakdown was already
   computed live off the current month, so it already "restarts" naturally each month
+- Bucket delete now works even when expenses are already logged under that bucket, and shows an
+  `alert()` if a delete ever fails instead of only logging to console. Was silently blocked before
+  (2026-09-03 fix) — see schema.sql migration note
 
 ## Key decisions
 - **Broad buckets, not granular ones** (e.g. "Groceries" not "Vegetables"/"Snacks"/etc). Liraz
@@ -82,6 +85,11 @@ home screen as a full-screen web app.
   port or working-directory flag used. Workaround: start the static server directly via Bash with
   `dangerouslyDisableSandbox: true`, then attach the browser pane with `preview_start {url: ...}`
   pointing at that already-running server.
+- The `expenses.bucket_id` foreign key needs `on delete set null` — without it Postgres blocks
+  deleting a bucket that any expense still references, and the old app.js only did
+  `console.error(error)` so the delete looked like it silently did nothing. Fixed in schema.sql
+  and app.js now shows an `alert()` on any delete error; if this ever regresses (e.g. schema
+  rebuilt from an old copy), the migration to re-run is in schema.sql's comments.
 
 ## Next
 - Liraz to use it for real for a while
