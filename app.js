@@ -47,7 +47,11 @@ async function loadBuckets() {
 async function deleteBucket(id) {
   if (!confirm("Delete this bucket? Expenses already logged under it will keep it as an unnamed bucket.")) return;
   const { error } = await db.from("buckets").delete().eq("id", id);
-  if (error) return console.error(error);
+  if (error) {
+    console.error(error);
+    alert("Couldn't delete this bucket: " + error.message);
+    return;
+  }
   await loadBuckets();
 }
 
