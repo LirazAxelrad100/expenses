@@ -49,6 +49,11 @@ home screen as a full-screen web app.
 - Bucket delete now works even when expenses are already logged under that bucket, and shows an
   `alert()` if a delete ever fails instead of only logging to console. Was silently blocked before
   (2026-09-03 fix) — see schema.sql migration note
+- Category detail view (`category.html` / `category.js`, linked by clicking a bucket name in "This
+  month by bucket"): shows every expense in that bucket (date, item, place/notes, amount) for a
+  selected month, with a month picker like the report page — defaults to the current month rather
+  than all-time, matching how the rest of the app is scoped. Works for "Other" (bucket_id null)
+  too via `?bucket=null`.
 
 ## Key decisions
 - **Broad buckets, not granular ones** (e.g. "Groceries" not "Vegetables"/"Snacks"/etc). Liraz
@@ -90,6 +95,17 @@ home screen as a full-screen web app.
   `console.error(error)` so the delete looked like it silently did nothing. Fixed in schema.sql
   and app.js now shows an `alert()` on any delete error; if this ever regresses (e.g. schema
   rebuilt from an old copy), the migration to re-run is in schema.sql's comments.
+- Liraz has an actual bucket literally named "Other" (a real row in `buckets`, with its own uuid)
+  *in addition to* the app's fallback label "Other" shown for `bucket_id is null`. They look
+  identical in the UI but are different data — a `where bucket_id is null` query won't match
+  expenses filed under the real "Other" bucket, and vice versa. Caused real confusion during a
+  2026-09-21 data cleanup (moving "donation"-worded expenses into the Donation bucket) — check
+  both when debugging "why didn't this expense move/show up".
+- The `config.js` file in the working tree locally has a stale/unregistered Supabase key (it was
+  removed from git in commit ec222c1 and is now Vercel-env-injected only, but an old local copy
+  lingers on disk and returns 401 "Unregistered API key"). Can't verify Supabase-dependent
+  behavior via the local dev server as a result — ask Liraz to test data-dependent changes on the
+  live Vercel deploy instead, or get a current key from her to overwrite the local file.
 
 ## Next
 - Liraz to use it for real for a while
