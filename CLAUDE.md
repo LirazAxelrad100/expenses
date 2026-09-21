@@ -15,7 +15,8 @@ home screen as a full-screen web app.
   that appends extra amount+bucket rows below the main one (each becomes its own expense row,
   sharing the same item/place/notes). Unchecked, the form is untouched — this was a deliberate
   redesign after the first version replaced/hid the main fields, which confused Liraz
-- Buckets are editable in-app (add/delete) — not hardcoded, since Liraz expected to change them often
+- Buckets are editable in-app (add/rename/delete) — not hardcoded, since Liraz expected to change
+  them often
 - Running monthly total, always visible, updates live
 - This-month breakdown by bucket
 - "This month's expenses" list (was "Recent expenses") — scoped to the current month rather than
@@ -95,12 +96,14 @@ home screen as a full-screen web app.
   `console.error(error)` so the delete looked like it silently did nothing. Fixed in schema.sql
   and app.js now shows an `alert()` on any delete error; if this ever regresses (e.g. schema
   rebuilt from an old copy), the migration to re-run is in schema.sql's comments.
-- Liraz has an actual bucket literally named "Other" (a real row in `buckets`, with its own uuid)
-  *in addition to* the app's fallback label "Other" shown for `bucket_id is null`. They look
-  identical in the UI but are different data — a `where bucket_id is null` query won't match
-  expenses filed under the real "Other" bucket, and vice versa. Caused real confusion during a
-  2026-09-21 data cleanup (moving "donation"-worded expenses into the Donation bucket) — check
-  both when debugging "why didn't this expense move/show up".
+- Liraz used to have an actual bucket literally named "Other" (a real row in `buckets`, with its
+  own uuid) *in addition to* the app's fallback label "Other" shown for `bucket_id is null`. They
+  looked identical in the UI but were different data — a `where bucket_id is null` query wouldn't
+  match expenses filed under the real "Other" bucket, and vice versa. Caused real confusion during
+  a 2026-09-21 data cleanup (moving "donation"-worded expenses into the Donation bucket). Fixed by
+  renaming that bucket to "General" (2026-09-21) — if a similarly-named collision ever reappears,
+  check both `bucket_id is null` and the actual bucket name when debugging "why didn't this
+  expense move/show up".
 - The `config.js` file in the working tree locally has a stale/unregistered Supabase key (it was
   removed from git in commit ec222c1 and is now Vercel-env-injected only, but an old local copy
   lingers on disk and returns 401 "Unregistered API key"). Can't verify Supabase-dependent
