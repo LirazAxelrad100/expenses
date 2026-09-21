@@ -35,13 +35,34 @@ async function loadBuckets() {
   bucketList.innerHTML = buckets.map(b => `
     <li>
       ${b.name}
+      <button data-id="${b.id}" class="editBucket">edit</button>
       <button data-id="${b.id}" class="deleteBucket">delete</button>
     </li>
   `).join("");
 
+  bucketList.querySelectorAll(".editBucket").forEach(btn => {
+    btn.addEventListener("click", () => renameBucket(btn.dataset.id));
+  });
   bucketList.querySelectorAll(".deleteBucket").forEach(btn => {
     btn.addEventListener("click", () => deleteBucket(btn.dataset.id));
   });
+}
+
+async function renameBucket(id) {
+  const bucket = buckets.find(b => b.id === id);
+  if (!bucket) return;
+  const name = prompt("Rename bucket:", bucket.name);
+  if (name === null) return;
+  const trimmed = name.trim();
+  if (!trimmed || trimmed === bucket.name) return;
+
+  const { error } = await db.from("buckets").update({ name: trimmed }).eq("id", id);
+  if (error) {
+    console.error(error);
+    alert("Couldn't rename this bucket: " + error.message);
+    return;
+  }
+  await loadBuckets();
 }
 
 async function deleteBucket(id) {
