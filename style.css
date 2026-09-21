@@ -201,6 +201,15 @@ li button {
   text-decoration: none;
 }
 
+#breakdownList a {
+  color: #1c1c1e;
+  text-decoration: none;
+}
+
+#breakdownList a:active {
+  color: #666;
+}
+
 header select {
   margin: 8px 0;
 }

@@ -79,13 +79,15 @@ async function loadExpenses() {
 
   const byBucket = {};
   monthData.forEach(e => {
+    const key = e.bucket_id || "null";
     const name = e.buckets ? e.buckets.name : "Other";
-    byBucket[name] = (byBucket[name] || 0) + Number(e.amount);
+    byBucket[key] = byBucket[key] || { name, amount: 0 };
+    byBucket[key].amount += Number(e.amount);
   });
   const breakdownList = document.getElementById("breakdownList");
   breakdownList.innerHTML = Object.entries(byBucket)
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, amount]) => `<li><span>${name}</span><span>${formatMoney(amount)}</span></li>`)
+    .sort((a, b) => b[1].amount - a[1].amount)
+    .map(([id, { name, amount }]) => `<li><a href="category.html?bucket=${id}">${name}</a><span>${formatMoney(amount)}</span></li>`)
     .join("") || "<li>No expenses yet this month</li>";
 
   recentExpenses = monthData;
