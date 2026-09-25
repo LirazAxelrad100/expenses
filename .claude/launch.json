@@ -3,9 +3,9 @@
   "configurations": [
     {
       "name": "expenses",
-      "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "cd /Users/axelrad/Documents/projects/expenses && exec python3 -m http.server 5173"],
-      "port": 5173
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5174", "--directory", "/Users/axelrad/Documents/projects/expenses"],
+      "port": 5174
     }
   ]
 }

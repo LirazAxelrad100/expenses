@@ -21,6 +21,23 @@
 
 <main>
 
+  <section id="scanSection">
+    <button type="button" id="scanReceiptBtn">📷 Scan receipt</button>
+    <input type="file" id="scanFileInput" accept="image/*" capture="environment" style="display:none">
+    <p id="scanStatus" style="display:none"></p>
+
+    <div id="scanReview" style="display:none">
+      <label class="dateRow">
+        Date
+        <input type="date" id="scanDate">
+      </label>
+      <input type="text" id="scanPlace" placeholder="Where (e.g. store name)">
+      <ul id="scanItems"></ul>
+      <button type="button" id="scanSaveBtn"></button>
+      <button type="button" id="scanCancelBtn">Cancel</button>
+    </div>
+  </section>
+
   <form id="expenseForm">
     <div class="fieldRow">
       <input type="number" id="amount" step="0.01" min="0" placeholder="Amount" required>
@@ -73,5 +90,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="app.js?v=10"></script>
+<script src="scan.js?v=1"></script>
 </body>
 </html>

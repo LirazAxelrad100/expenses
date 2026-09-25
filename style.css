@@ -174,6 +174,60 @@ li button {
   font-weight: normal;
 }
 
+#scanSection {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+#scanReceiptBtn {
+  width: 100%;
+}
+
+#scanStatus {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin: 12px 0 0;
+}
+
+#scanReview {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#scanReview input[type="text"] {
+  width: 100%;
+}
+
+#scanItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#scanItems li {
+  border-bottom: none;
+  padding: 0;
+}
+
+#scanItems .scanItemName {
+  flex: 2;
+}
+
+#scanItems .scanItemPrice {
+  flex: 0.8;
+}
+
+#scanCancelBtn {
+  background: none;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
 .reportLink {
   display: block;
   text-align: right;
