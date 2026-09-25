@@ -55,6 +55,16 @@ home screen as a full-screen web app.
   selected month, with a month picker like the report page — defaults to the current month rather
   than all-time, matching how the rest of the app is scoped. Works for "Other" (bucket_id null)
   too via `?bucket=null`.
+- **Receipt scanning** (2026-09-25, `scan.js` + `api/scan-receipt.js`): "📷 Scan receipt" button on
+  the main page. Liraz photographs a receipt, the photo is downscaled client-side (max 1600px,
+  JPEG q0.82) and sent to a Vercel serverless function, which sends it to Claude (vision) asking
+  for store, date, and one `{name, price, suggestedBucket}` per line item. Result opens a review
+  screen (editable item/price/bucket per row, remove-row ×, shared date/place) before anything is
+  saved — nothing is written to the database until Liraz hits "Save N items". On save, each item
+  becomes its own row in the existing `expenses` table (item = line text, amount = price,
+  bucket_id = whatever she picked, where = store name) — no new table needed, since a receipt line
+  is just an expense with an item name. This is what finally gives per-item content inside a
+  bucket like "Super" instead of just a lump sum. Tested live and working (2026-09-25).
 
 ## Key decisions
 - **Broad buckets, not granular ones** (e.g. "Groceries" not "Vegetables"/"Snacks"/etc). Liraz
@@ -67,12 +77,14 @@ home screen as a full-screen web app.
   number on the spot (e.g. "the vacuum was clearly €45 of this €80"). A "subtract the junk items
   from the receipt total" workflow was proposed and rejected as still too fiddly for real use.
 - **No offline support**: Liraz confirmed missing signal is rare enough not to design for.
-- **No receipt/barcode scanning in v1**: this is the real fix for wanting granular insight
-  (junk/sweets spend etc.) without manual splitting — OCR reads printed items/prices, app
-  suggests a bucket per line, Liraz just corrects instead of calculating. Deliberately parked:
-  it needs a server-side function (API keys can't live in client-side JS) and has a real
-  per-receipt cost, a meaningfully bigger step than anything built so far. Liraz chose to use
-  the app as-is for a while and revisit once the lack of junk/sweets tracking actually bothers her.
+- **Receipt scanning built in v2 (2026-09-25)**, once Liraz decided the effort/cost (a serverless
+  function + a per-receipt API cost, roughly a cent or two) was worth it for real item-level
+  insight into buckets like "Super". Originally parked in v1 for the same reasons. Uses a
+  dedicated Anthropic API key (`RECEIPT_SCAN_API_KEY` in Vercel env vars, not shared with her other
+  tools' keys) so it can be revoked independently if it's ever compromised or misbehaves.
+  Reuses the existing `expenses` table rather than adding an `items` table — a receipt line is
+  just another expense row with an item name, so category.html/report.html needed no changes to
+  display scanned items.
 - **Hosting/tooling kept consistent with her other projects**: GitHub login for Supabase account,
   Vercel for hosting (same as her other site) — fewer accounts/logins to juggle.
 - **Supabase "Automatically expose new tables" left off, RLS required explicit grants**: safer
@@ -109,7 +121,13 @@ home screen as a full-screen web app.
   lingers on disk and returns 401 "Unregistered API key"). Can't verify Supabase-dependent
   behavior via the local dev server as a result — ask Liraz to test data-dependent changes on the
   live Vercel deploy instead, or get a current key from her to overwrite the local file.
+- Receipt scanning (`api/scan-receipt.js`) can't be tested locally either, same reason plus it's a
+  serverless function `python3 -m http.server` doesn't run — always verify this on the live
+  Vercel deploy. The prompt sent to Claude lives in that file; if items are misread or buckets are
+  consistently wrong, that's the place to adjust.
 
 ## Next
-- Liraz to use it for real for a while
-- Revisit receipt scanning (OCR, v2+) once the lack of junk/sweets-level insight actually bothers her
+- Liraz to use receipt scanning for real for a while, see how well item/bucket suggestions hold up
+  across different stores and messier receipts (crumpled, faded thermal paper, etc.) — revisit the
+  prompt in api/scan-receipt.js if accuracy is a recurring problem
+- Keep an eye on Anthropic API cost for the `RECEIPT_SCAN_API_KEY` key as usage grows
